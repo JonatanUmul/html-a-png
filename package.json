@@ -1,18 +1,16 @@
 {
   "name": "html-to-png-service",
   "version": "1.0.0",
+  "main": "server.js",
   "type": "module",
-"scripts": {
-  "start": "node server.js",
-  "postinstall": "npx playwright install chromium"
-},
+  "scripts": {
+    "start": "node server.js",
+    "postinstall": "npx playwright install chromium"
+  },
   "dependencies": {
     "body-parser": "^1.20.2",
     "cors": "^2.8.5",
-    "express": "^4.19.2",
-    "playwright": "^1.55.0"
-  },
-  "engines": {
-    "node": "20.x"
+    "express": "^4.18.2",
+    "playwright": "^1.47.2"
   }
 }
