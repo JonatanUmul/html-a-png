@@ -21,7 +21,7 @@ app.post("/render-image", async (req, res) => {
       args: [...chromium.args, "--no-sandbox", "--disable-setuid-sandbox"],
       defaultViewport: { width, height: 800, deviceScaleFactor: scale },
       executablePath: await chromium.executablePath,
-      headless: chromium.headless
+      headless: chromium.headless,
     });
 
     const page = await browser.newPage();
@@ -34,7 +34,7 @@ app.post("/render-image", async (req, res) => {
 
     res.json({ pngBase64: buffer.toString("base64") });
   } catch (err) {
-    console.error("Render error:", err);
+    console.error("Error en render:", err);
     res.status(500).json({ ok: false, error: err.message });
   } finally {
     if (browser) await browser.close().catch(() => {});
