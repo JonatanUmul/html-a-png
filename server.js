@@ -1,23 +1,13 @@
 import express from "express";
 import cors from "cors";
 import bodyParser from "body-parser";
-import chromium from "chrome-aws-lambda";
+import { chromium } from "playwright";
 
 const app = express();
 app.use(cors());
 app.use(bodyParser.json({ limit: "10mb" }));
 
-app.get("/health", async (_, res) => {
-  try {
-    res.json({
-      ok: true,
-      headless: chromium.headless,
-      execPath: await chromium.executablePath // debe ser string en Render si todo está ok
-    });
-  } catch {
-    res.json({ ok: true, headless: chromium.headless, execPath: null });
-  }
-});
+app.get("/health", (_, res) => res.json({ ok: true }));
 
 app.post("/render-image", async (req, res) => {
   const { html, selector = ".sheet", width = 1024, scale = 2 } = req.body || {};
@@ -27,16 +17,17 @@ app.post("/render-image", async (req, res) => {
 
   let browser;
   try {
-    const execPath = await chromium.executablePath;
-    browser = await chromium.puppeteer.launch({
-      args: [...chromium.args, "--no-sandbox", "--disable-setuid-sandbox"],
-      executablePath: execPath,
-      headless: chromium.headless,
-      defaultViewport: { width, height: 800, deviceScaleFactor: scale }
+    browser = await chromium.launch({
+      args: ["--no-sandbox", "--disable-setuid-sandbox"],
+      headless: true
     });
 
-    const page = await browser.newPage();
-    await page.setContent(html, { waitUntil: "networkidle0" });
+    const context = await browser.newContext({
+      viewport: { width, height: 800, deviceScaleFactor: scale }
+    });
+
+    const page = await context.newPage();
+    await page.setContent(html, { waitUntil: "networkidle" });
 
     const el = await page.$(selector);
     const buffer = el
