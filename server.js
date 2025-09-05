@@ -12,10 +12,9 @@ app.get("/health", async (_, res) => {
     res.json({
       ok: true,
       headless: chromium.headless,
-      // útil para depurar en Render
-      execPath: await chromium.executablePath
+      execPath: await chromium.executablePath // debe ser string en Render si todo está ok
     });
-  } catch (e) {
+  } catch {
     res.json({ ok: true, headless: chromium.headless, execPath: null });
   }
 });
@@ -28,10 +27,10 @@ app.post("/render-image", async (req, res) => {
 
   let browser;
   try {
-    const executablePath = await chromium.executablePath; // en Render retorna ruta válida
+    const execPath = await chromium.executablePath;
     browser = await chromium.puppeteer.launch({
       args: [...chromium.args, "--no-sandbox", "--disable-setuid-sandbox"],
-      executablePath,
+      executablePath: execPath,
       headless: chromium.headless,
       defaultViewport: { width, height: 800, deviceScaleFactor: scale }
     });
