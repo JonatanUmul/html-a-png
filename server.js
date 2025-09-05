@@ -1,7 +1,7 @@
 import express from "express";
 import cors from "cors";
 import bodyParser from "body-parser";
-import puppeteer from "puppeteer";
+import chromium from "chrome-aws-lambda";
 
 const app = express();
 app.use(cors());
@@ -17,20 +17,14 @@ app.post("/render-image", async (req, res) => {
 
   let browser;
   try {
-   browser = await puppeteer.launch({
-  headless: "new",
-  args: [
-    "--no-sandbox",
-    "--disable-setuid-sandbox",
-    "--disable-dev-shm-usage",
-    "--disable-gpu",
-    "--no-zygote"
-  ]
-});
-
+    browser = await chromium.puppeteer.launch({
+      args: [...chromium.args, "--no-sandbox", "--disable-setuid-sandbox"],
+      defaultViewport: { width, height: 800, deviceScaleFactor: scale },
+      executablePath: await chromium.executablePath,
+      headless: chromium.headless
+    });
 
     const page = await browser.newPage();
-    await page.setViewport({ width, height: 800, deviceScaleFactor: scale });
     await page.setContent(html, { waitUntil: "networkidle0" });
 
     let buffer;
@@ -40,7 +34,7 @@ app.post("/render-image", async (req, res) => {
 
     res.json({ pngBase64: buffer.toString("base64") });
   } catch (err) {
-    console.error(err);
+    console.error("Render error:", err);
     res.status(500).json({ ok: false, error: err.message });
   } finally {
     if (browser) await browser.close().catch(() => {});

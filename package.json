@@ -5,15 +5,17 @@
   "scripts": {
     "start": "node server.js"
   },
-  "dependencies": {
-    "body-parser": "^1.20.2",
-    "cors": "^2.8.5",
-    "express": "^4.19.2",
-    "puppeteer": "^22.13.1"
-  },
-  "engines": {
+ "dependencies": {
+  "body-parser": "^1.20.2",
+  "chrome-aws-lambda": "^10.1.0",
+  "cors": "^2.8.5",
+  "express": "^4.19.2",
+  "puppeteer-core": "^22.13.1"
+},
+"engines": {
   "node": "20.x"
 }
+
 }
 
 
