@@ -2,9 +2,10 @@
   "name": "html-to-png-service",
   "version": "1.0.0",
   "type": "module",
-  "scripts": {
-    "start": "node server.js"
-  },
+ "scripts": {
+  "start": "node server.js",
+  "postinstall": "npx playwright install --with-deps chromium"
+},
   "dependencies": {
     "body-parser": "^1.20.2",
     "cors": "^2.8.5",
