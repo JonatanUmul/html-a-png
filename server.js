@@ -7,13 +7,13 @@ const app = express();
 app.use(cors());
 app.use(bodyParser.json({ limit: "10mb" }));
 
-app.get("/health", (_, res) => res.json({ ok: true }));
+app.get("/health", async (_, res) => {
+  res.json({ ok: true });
+});
 
 app.post("/render-image", async (req, res) => {
   const { html, selector = ".sheet", width = 1024, scale = 2 } = req.body || {};
-  if (!html || typeof html !== "string") {
-    return res.status(400).json({ ok: false, error: "html requerido" });
-  }
+  if (!html) return res.status(400).json({ ok: false, error: "html requerido" });
 
   let browser;
   try {
@@ -22,11 +22,8 @@ app.post("/render-image", async (req, res) => {
       headless: true
     });
 
-    const context = await browser.newContext({
-      viewport: { width, height: 800, deviceScaleFactor: scale }
-    });
-
-    const page = await context.newPage();
+    const page = await browser.newPage();
+    await page.setViewportSize({ width, height: 800 });
     await page.setContent(html, { waitUntil: "networkidle" });
 
     const el = await page.$(selector);
@@ -39,7 +36,7 @@ app.post("/render-image", async (req, res) => {
     console.error("Error en render:", err);
     res.status(500).json({ ok: false, error: err.message });
   } finally {
-    if (browser) await browser.close().catch(() => {});
+    if (browser) await browser.close();
   }
 });
 
