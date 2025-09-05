@@ -17,13 +17,17 @@ app.post("/render-image", async (req, res) => {
 
   let browser;
   try {
-    browser = await puppeteer.launch({
-      args: [
-        "--no-sandbox",
-        "--disable-setuid-sandbox",
-        "--disable-dev-shm-usage"
-      ]
-    });
+   browser = await puppeteer.launch({
+  headless: "new",
+  args: [
+    "--no-sandbox",
+    "--disable-setuid-sandbox",
+    "--disable-dev-shm-usage",
+    "--disable-gpu",
+    "--no-zygote"
+  ]
+});
+
 
     const page = await browser.newPage();
     await page.setViewport({ width, height: 800, deviceScaleFactor: scale });
