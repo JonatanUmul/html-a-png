@@ -15,10 +15,18 @@ app.post("/html-to-image", async (req, res) => {
   }
 
   try {
-    const browser = await puppeteer.launch({
-      headless: true,
-      args: ["--no-sandbox", "--disable-setuid-sandbox"],
-    });
+   const browser = await puppeteer.launch({
+  headless: "new",  // importante en Node >= 18
+  args: [
+    "--no-sandbox",
+    "--disable-setuid-sandbox",
+    "--disable-dev-shm-usage",
+    "--disable-gpu",
+    "--no-zygote",
+    "--single-process"
+  ]
+});
+
 
     const page = await browser.newPage();
     await page.setContent(html, { waitUntil: "networkidle0" });
@@ -31,7 +39,7 @@ app.post("/html-to-image", async (req, res) => {
       image: `data:image/png;base64,${screenshot.toString("base64")}`,
     });
   } catch (error) {
-    console.error("❌ Error generando la imagen:", error);
+    console.error(" Error generando la imagen:", error);
     res.status(500).json({ error: "Error generando la imagen" });
   }
 });
