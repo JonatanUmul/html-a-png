@@ -8,10 +8,22 @@
     "postinstall": "npx playwright install chromium"
   },
   "dependencies": {
-    "express": "^4.18.2",
-    "cors": "^2.8.5",
     "body-parser": "^1.20.2",
-    "playwright": "^1.47.2"
-  }
+    "cors": "^2.8.5",
+    "express": "^4.21.2",
+    "playwright": "^1.47.2",
+    "puppeteer": "^24.22.3"
+  },
+  "description": "",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/JonatanUmul/html-a-png.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/JonatanUmul/html-a-png/issues"
+  },
+  "homepage": "https://github.com/JonatanUmul/html-a-png#readme"
 }
-

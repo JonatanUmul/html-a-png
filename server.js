@@ -1,8 +1,11 @@
-const express = require("express");
-const puppeteer = require("puppeteer");
+import express from "express";
+import cors from "cors";
+import bodyParser from "body-parser";
+import puppeteer from "puppeteer";
 
 const app = express();
-app.use(express.json({ limit: "10mb" })); // para HTML largos
+app.use(cors());
+app.use(bodyParser.json({ limit: "10mb" }));
 
 app.post("/html-to-image", async (req, res) => {
   const { html } = req.body;
@@ -13,25 +16,25 @@ app.post("/html-to-image", async (req, res) => {
 
   try {
     const browser = await puppeteer.launch({
+      headless: true,
       args: ["--no-sandbox", "--disable-setuid-sandbox"],
     });
-    const page = await browser.newPage();
 
+    const page = await browser.newPage();
     await page.setContent(html, { waitUntil: "networkidle0" });
 
     const screenshot = await page.screenshot({ type: "png", fullPage: true });
 
     await browser.close();
 
-    // Responder en base64
     res.json({
       image: `data:image/png;base64,${screenshot.toString("base64")}`,
     });
   } catch (error) {
-    console.error(error);
+    console.error("❌ Error generando la imagen:", error);
     res.status(500).json({ error: "Error generando la imagen" });
   }
 });
 
 const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => console.log(`Microservicio corriendo en puerto ${PORT}`));
+app.listen(PORT, () => console.log(`🚀 Microservicio corriendo en puerto ${PORT}`));
