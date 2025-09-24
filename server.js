@@ -1,44 +1,37 @@
-import express from "express";
-import cors from "cors";
-import bodyParser from "body-parser";
-import { chromium } from "playwright";
+const express = require("express");
+const puppeteer = require("puppeteer");
 
 const app = express();
-app.use(cors());
-app.use(bodyParser.json({ limit: "10mb" }));
+app.use(express.json({ limit: "10mb" })); // para HTML largos
 
-app.get("/health", async (_, res) => {
-  res.json({ ok: true });
-});
+app.post("/html-to-image", async (req, res) => {
+  const { html } = req.body;
 
-app.post("/render-image", async (req, res) => {
-  const { html, selector = ".sheet", width = 1024, scale = 2 } = req.body || {};
-  if (!html) return res.status(400).json({ ok: false, error: "html requerido" });
+  if (!html) {
+    return res.status(400).json({ error: "HTML no proporcionado" });
+  }
 
-  let browser;
   try {
-    browser = await chromium.launch({
+    const browser = await puppeteer.launch({
       args: ["--no-sandbox", "--disable-setuid-sandbox"],
-      headless: true
     });
-
     const page = await browser.newPage();
-    await page.setViewportSize({ width, height: 800 });
-    await page.setContent(html, { waitUntil: "networkidle" });
 
-    const el = await page.$(selector);
-    const buffer = el
-      ? await el.screenshot({ type: "png" })
-      : await page.screenshot({ type: "png", fullPage: true });
+    await page.setContent(html, { waitUntil: "networkidle0" });
 
-    res.json({ ok: true, pngBase64: buffer.toString("base64") });
-  } catch (err) {
-    console.error("Error en render:", err);
-    res.status(500).json({ ok: false, error: err.message });
-  } finally {
-    if (browser) await browser.close();
+    const screenshot = await page.screenshot({ type: "png", fullPage: true });
+
+    await browser.close();
+
+    // Responder en base64
+    res.json({
+      image: `data:image/png;base64,${screenshot.toString("base64")}`,
+    });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: "Error generando la imagen" });
   }
 });
 
 const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => console.log(`Servicio HTML→PNG listo en :${PORT}`));
+app.listen(PORT, () => console.log(`Microservicio corriendo en puerto ${PORT}`));
